@@ -128,4 +128,22 @@ export class TaskController {
       next(error);
     }
   };
+
+  getStatistics = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      if (!req.user) {
+        res.status(401).json({ error: 'Unauthorized' });
+        return;
+      }
+
+      const statistics = await this.taskService.getTaskStatistics(
+        req.user.id,
+        req.user.role
+      );
+
+      res.json({ statistics });
+    } catch (error) {
+      next(error);
+    }
+  };
 }

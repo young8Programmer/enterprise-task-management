@@ -111,6 +111,35 @@ Requires authentication.
 
 **Priority values:** `low`, `medium`, `high`
 
+#### Get Task Statistics
+```
+GET /api/tasks/statistics
+```
+Requires authentication.
+
+**Response:**
+```json
+{
+  "statistics": {
+    "total": 25,
+    "byStatus": {
+      "todo": 5,
+      "in-progress": 8,
+      "review": 3,
+      "completed": 9
+    },
+    "byPriority": {
+      "low": 4,
+      "medium": 12,
+      "high": 9
+    },
+    "overdue": 2,
+    "dueSoon": 5,
+    "completedThisWeek": 7
+  }
+}
+```
+
 #### Get Tasks
 ```
 GET /api/tasks?status=todo&priority=high&search=project&page=1&limit=10

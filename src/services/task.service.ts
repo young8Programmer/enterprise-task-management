@@ -372,6 +372,91 @@ export class TaskService {
     );
   }
 
+  async getTaskStatistics(
+    userId: string,
+    userRole: UserRole
+  ): Promise<{
+    total: number;
+    byStatus: Record<TaskStatus, number>;
+    byPriority: Record<TaskPriority, number>;
+    overdue: number;
+    dueSoon: number;
+    completedThisWeek: number;
+  }> {
+    const queryBuilder = this.taskRepository.createQueryBuilder('task');
+
+    // Apply role-based filtering
+    if (userRole === UserRole.USER) {
+      queryBuilder.where(
+        '(task.assignedToId = :userId OR task.createdById = :userId)',
+        { userId }
+      );
+    } else if (userRole === UserRole.MANAGER) {
+      queryBuilder.where(
+        '(task.createdById = :userId OR task.assignedToId IS NOT NULL)',
+        { userId }
+      );
+    }
+
+    const tasks = await queryBuilder.getMany();
+
+    const now = new Date();
+    const oneWeekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+    const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+    const stats = {
+      total: tasks.length,
+      byStatus: {
+        [TaskStatus.TODO]: 0,
+        [TaskStatus.IN_PROGRESS]: 0,
+        [TaskStatus.REVIEW]: 0,
+        [TaskStatus.COMPLETED]: 0,
+      } as Record<TaskStatus, number>,
+      byPriority: {
+        [TaskPriority.LOW]: 0,
+        [TaskPriority.MEDIUM]: 0,
+        [TaskPriority.HIGH]: 0,
+      } as Record<TaskPriority, number>,
+      overdue: 0,
+      dueSoon: 0,
+      completedThisWeek: 0,
+    };
+
+    tasks.forEach((task) => {
+      // Count by status
+      stats.byStatus[task.status]++;
+
+      // Count by priority
+      stats.byPriority[task.priority]++;
+
+      // Check overdue
+      if (task.deadline && task.deadline < now && task.status !== TaskStatus.COMPLETED) {
+        stats.overdue++;
+      }
+
+      // Check due soon (within 7 days)
+      if (
+        task.deadline &&
+        task.deadline > now &&
+        task.deadline <= oneWeekFromNow &&
+        task.status !== TaskStatus.COMPLETED
+      ) {
+        stats.dueSoon++;
+      }
+
+      // Count completed this week
+      if (
+        task.status === TaskStatus.COMPLETED &&
+        task.updatedAt &&
+        task.updatedAt >= oneWeekAgo
+      ) {
+        stats.completedThisWeek++;
+      }
+    });
+
+    return stats;
+  }
+
   private async createActivityLog(
     userId: string,
     taskId: string | null,

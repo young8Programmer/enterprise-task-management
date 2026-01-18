@@ -14,6 +14,7 @@ const router = Router();
 const taskController = new TaskController();
 
 router.post('/', authenticate, validate(createTaskSchema), taskController.createTask);
+router.get('/statistics', authenticate, taskController.getStatistics);
 router.get('/', authenticate, validate(getTasksSchema), taskController.getTasks);
 router.get('/:id', authenticate, validate(getTaskSchema), taskController.getTask);
 router.patch('/:id', authenticate, validate(updateTaskSchema), taskController.updateTask);
