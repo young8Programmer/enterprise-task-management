@@ -5,6 +5,7 @@ import commentRoutes from './comment.routes';
 import fileRoutes from './file.routes';
 import activityRoutes from './activity.routes';
 import userRoutes from './user.routes';
+import favoriteRoutes from './favorite.routes';
 
 const router = Router();
 
@@ -14,5 +15,6 @@ router.use('/comments', commentRoutes);
 router.use('/files', fileRoutes);
 router.use('/activity', activityRoutes);
 router.use('/users', userRoutes);
+router.use('/favorites', favoriteRoutes);
 
 export default router;

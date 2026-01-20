@@ -4,6 +4,7 @@ import { Task } from '../entities/Task';
 import { Comment } from '../entities/Comment';
 import { ActivityLog } from '../entities/ActivityLog';
 import { FileAttachment } from '../entities/FileAttachment';
+import { TaskFavorite } from '../entities/TaskFavorite';
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
@@ -14,7 +15,7 @@ export const AppDataSource = new DataSource({
   database: process.env.DB_NAME || 'taskflow_db',
   synchronize: process.env.NODE_ENV === 'development' && process.env.DB_SYNC !== 'false',
   logging: process.env.NODE_ENV === 'development',
-  entities: [User, Task, Comment, ActivityLog, FileAttachment],
+  entities: [User, Task, Comment, ActivityLog, FileAttachment, TaskFavorite],
   migrations: ['src/migrations/**/*.ts'],
   subscribers: ['src/subscribers/**/*.ts'],
 });
